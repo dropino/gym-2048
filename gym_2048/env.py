@@ -124,28 +124,26 @@ class Base2048Env(gym.Env):
 
     result = []
 
-    #score = 0
+    score = 0
     for row in board:
       row = np.extract(row > 0, row)
-      #score_, //result_row is the rest in case of revert.
-      result_row = self._try_merge(row)
-      #score += score_
+      score_, result_row = self._try_merge(row)
+      score += score_
       row = np.pad(np.array(result_row), (0, self.width - len(result_row)),
                    'constant', constant_values=(0,))
       result.append(row)
 
-    score = np.amax(np.array(result, dtype=np.int64)) * 10 + np.sum(result, dtype=np.int64)
     return score, np.array(result, dtype=np.int64)
 
   @staticmethod
   def _try_merge(row):
-    #score = 0
+    score = 0
     result_row = []
 
     i = 1
     while i < len(row):
       if row[i] == row[i - 1]:
-        #score += row[i] + row[i - 1]
+        score += row[i] + row[i - 1]
         result_row.append(row[i] + row[i - 1])
         i += 2
       else:
@@ -155,4 +153,4 @@ class Base2048Env(gym.Env):
     if i == len(row):
       result_row.append(row[i - 1])
 
-    return result_row#, score
+    return score, result_row
