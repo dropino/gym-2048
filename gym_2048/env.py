@@ -128,11 +128,12 @@ class Base2048Env(gym.Env):
     for row in board:
       row = np.extract(row > 0, row)
       score_, result_row = self._try_merge(row)
-      score += score_
+      #score += score_
       row = np.pad(np.array(result_row), (0, self.width - len(result_row)),
                    'constant', constant_values=(0,))
       result.append(row)
 
+    score = np.amax(board)
     return score, np.array(result, dtype=np.int64)
 
   @staticmethod
