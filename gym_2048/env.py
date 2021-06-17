@@ -134,7 +134,8 @@ class Base2048Env(gym.Env):
                    'constant', constant_values=(0,))
       result.append(row)
 
-    score = np.amax(np.array(result, dtype=np.int64))
+    score = np.amax(np.array(result, dtype=np.int64)) * 9
+    score += np.sum(result, dtype=np.int64)
     return score, np.array(result, dtype=np.int64)
 
   @staticmethod
