@@ -61,6 +61,8 @@ class Base2048Env(gym.Env):
 
     done = self.is_done()
 
+    reward = np.amax(self.board)
+
     return self.board, reward, done, {}
 
   def is_done(self):
@@ -133,7 +135,6 @@ class Base2048Env(gym.Env):
                    'constant', constant_values=(0,))
       result.append(row)
 
-    score = np.amax(board)
     return score, np.array(result, dtype=np.int64)
 
   @staticmethod
