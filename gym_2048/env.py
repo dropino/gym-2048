@@ -61,8 +61,6 @@ class Base2048Env(gym.Env):
 
     done = self.is_done()
 
-    reward = np.amax(self.board)
-
     return self.board, reward, done, {}
 
   def is_done(self):
@@ -117,9 +115,9 @@ class Base2048Env(gym.Env):
 
   def _place_random_tiles(self, board, count=1):
     if not board.all():
-      tiles = self._sample_tiles(count)
       tile_locs = self._sample_tile_locations(board, count)
-      board[tile_locs] = tiles
+      for loc in tile_locs:
+        board[loc] = self._sample_tiles(count=1)
 
   def _slide_left_and_merge(self, board):
     """Slide tiles on a grid to the left and merge."""
@@ -130,7 +128,7 @@ class Base2048Env(gym.Env):
     for row in board:
       row = np.extract(row > 0, row)
       score_, result_row = self._try_merge(row)
-      #score += score_
+      score += score_
       row = np.pad(np.array(result_row), (0, self.width - len(result_row)),
                    'constant', constant_values=(0,))
       result.append(row)
