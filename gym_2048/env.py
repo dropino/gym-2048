@@ -115,9 +115,9 @@ class Base2048Env(gym.Env):
 
   def _place_random_tiles(self, board, count=1):
     if not board.all():
+      tiles = self._sample_tiles(count)
       tile_locs = self._sample_tile_locations(board, count)
-      for loc in tile_locs:
-        board[loc] = self._sample_tiles(count=1)
+      board[tile_locs] = tiles
 
   def _slide_left_and_merge(self, board):
     """Slide tiles on a grid to the left and merge."""
