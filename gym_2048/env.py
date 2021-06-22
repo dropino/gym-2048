@@ -61,6 +61,9 @@ class Base2048Env(gym.Env):
 
     done = self.is_done()
 
+    if done:
+        reward = -1000
+
     return self.board, reward, done, {}
 
   def is_done(self):
@@ -128,7 +131,8 @@ class Base2048Env(gym.Env):
     for row in board:
       row = np.extract(row > 0, row)
       score_, result_row = self._try_merge(row)
-      score += score_
+      if score < score_:
+          score = score_
       row = np.pad(np.array(result_row), (0, self.width - len(result_row)),
                    'constant', constant_values=(0,))
       result.append(row)
@@ -139,11 +143,14 @@ class Base2048Env(gym.Env):
   def _try_merge(row):
     score = 0
     result_row = []
+    cur_merge = 0
 
     i = 1
     while i < len(row):
       if row[i] == row[i - 1]:
-        score += row[i] + row[i - 1]
+        cur_merge = row[i] + row[i - 1]
+        if score < cur_merge:
+            score = cur_merge
         result_row.append(row[i] + row[i - 1])
         i += 2
       else:
