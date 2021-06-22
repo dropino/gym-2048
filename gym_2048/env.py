@@ -44,6 +44,8 @@ class Base2048Env(gym.Env):
     self.seed()
     self.reset()
 
+    self.max_value = np.amax(self.board)
+
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
@@ -60,9 +62,16 @@ class Base2048Env(gym.Env):
     self._place_random_tiles(self.board, count=1)
 
     done = self.is_done()
+    new_max = np.amax(self.board)
 
+    #to fix rest and remove previous score system
     if done:
         reward = -1000
+    elif self.max_value < new_max:
+        self.max_value = new_max
+        reward = new_max 
+    else:
+        reward = 0
 
     return self.board, reward, done, {}
 
@@ -143,14 +152,11 @@ class Base2048Env(gym.Env):
   def _try_merge(row):
     score = 0
     result_row = []
-    cur_merge = 0
 
     i = 1
     while i < len(row):
       if row[i] == row[i - 1]:
-        cur_merge = row[i] + row[i - 1]
-        if score < cur_merge:
-            score = cur_merge
+        score = row[i] + row[i - 1]
         result_row.append(row[i] + row[i - 1])
         i += 2
       else:
