@@ -27,6 +27,9 @@ class Base2048Env(gym.Env):
       DOWN: 'down',
   }
 
+  max_value = 0
+
+
   def __init__(self, width=4, height=4):
     self.width = width
     self.height = height
@@ -44,8 +47,6 @@ class Base2048Env(gym.Env):
     self.seed()
     self.reset()
 
-    self.max_value = np.amax(self.board)
-
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
@@ -53,6 +54,7 @@ class Base2048Env(gym.Env):
 
   def step(self, action: int):
     old_board = np.copy(self.board)
+    max_value = np.amax(old_board)
 
     """Rotate board aligned with left action"""
     # Align board action with left action
@@ -69,12 +71,13 @@ class Base2048Env(gym.Env):
     #to fix rest and remove previous score system
     if done:
         reward = -1000
-    elif self.board == old_board:
-        reward = -100
-    elif self.max_value < new_max:
-        self.max_value = new_max
-        reward = new_max 
     else:
+      if self.board == old_board:
+        reward = -100
+      elif max_value < new_max:
+        max_value = new_max
+        reward = new_max 
+      else:
         reward = 0
 
     return self.board, reward, done, {}
@@ -93,6 +96,7 @@ class Base2048Env(gym.Env):
         return False
 
     return True
+
 
   def reset(self):
     """Place 2 tiles on empty board."""
