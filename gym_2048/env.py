@@ -72,7 +72,7 @@ class Base2048Env(gym.Env):
     if done:
         reward = -1000
     else:
-      if self.board == old_board:
+      if np.array_equal(self.board == old_board):
         reward = -100
       elif max_value < new_max:
         max_value = new_max
