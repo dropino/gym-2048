@@ -71,13 +71,12 @@ class Base2048Env(gym.Env):
     #to fix rest and remove previous score system
     if done:
         reward = -1
-    else:
-      if np.array_equal(self.board, old_board):
+    elif np.array_equal(self.board, old_board):
         reward = -1
-      elif max_value < new_max:
+    elif max_value < new_max:
         max_value = new_max
         reward = 1 
-      else:
+    else:
         reward = 0
 
     return self.board, reward, done, {}
