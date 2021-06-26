@@ -27,9 +27,6 @@ class Base2048Env(gym.Env):
       DOWN: 'down',
   }
 
-  max_value = 0
-
-
   def __init__(self, width=4, height=4):
     self.width = width
     self.height = height
@@ -51,39 +48,20 @@ class Base2048Env(gym.Env):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
-
   def step(self, action: int):
-    old_board = np.copy(self.board)
-    max_value = np.amax(old_board)
-
     """Rotate board aligned with left action"""
+
     # Align board action with left action
     rotated_obs = np.rot90(self.board, k=action)
-    updated_obs = self._slide_left_and_merge(rotated_obs)
+    reward, updated_obs = self._slide_left_and_merge(rotated_obs)
     self.board = np.rot90(updated_obs, k=4 - action)
 
     # Place one random tile on empty location
     self._place_random_tiles(self.board, count=1)
 
     done = self.is_done()
-    new_max = np.amax(self.board)
-
-    #to fix rest and remove previous score system
-    print(max_value)
-    print(new_max)
-    if done:
-        reward = -1
-    else:
-        if np.array_equal(self.board, old_board):
-            reward = -1
-        elif max_value < new_max:
-            max_value = new_max
-            reward = 1 
-        else:
-            reward = 0
 
     return self.board, reward, done, {}
-
 
   def is_done(self):
     copy_board = self.board.copy()
@@ -93,7 +71,7 @@ class Base2048Env(gym.Env):
 
     for action in [0, 1, 2, 3]:
       rotated_obs = np.rot90(copy_board, k=action)
-      updated_obs = self._slide_left_and_merge(rotated_obs)
+      _, updated_obs = self._slide_left_and_merge(rotated_obs)
       if not updated_obs.all():
         return False
 
@@ -108,12 +86,10 @@ class Base2048Env(gym.Env):
 
     return self.board
 
-
   def render(self, mode='human'):
     if mode == 'human':
       for row in self.board.tolist():
         print(' \t'.join(map(str, row)))
-
 
   def _sample_tiles(self, count=1):
     """Sample tile 2 or 4."""
@@ -126,7 +102,6 @@ class Base2048Env(gym.Env):
                                   p=probs)
     return tiles.tolist()
 
-
   def _sample_tile_locations(self, board, count=1):
     """Sample grid locations with no tile."""
 
@@ -138,36 +113,37 @@ class Base2048Env(gym.Env):
     zero_pos = list(zip(*zero_pos))
     return zero_pos
 
-
   def _place_random_tiles(self, board, count=1):
     if not board.all():
       tiles = self._sample_tiles(count)
       tile_locs = self._sample_tile_locations(board, count)
       board[tile_locs] = tiles
 
-
   def _slide_left_and_merge(self, board):
     """Slide tiles on a grid to the left and merge."""
 
     result = []
 
+    score = 0
     for row in board:
       row = np.extract(row > 0, row)
-      result_row = self._try_merge(row)
+      score_, result_row = self._try_merge(row)
+      score += score_
       row = np.pad(np.array(result_row), (0, self.width - len(result_row)),
                    'constant', constant_values=(0,))
       result.append(row)
 
-    return  np.array(result, dtype=np.int64)
-
+    return score, np.array(result, dtype=np.int64)
 
   @staticmethod
   def _try_merge(row):
+    score = 0
     result_row = []
 
     i = 1
     while i < len(row):
       if row[i] == row[i - 1]:
+        score += row[i] + row[i - 1]
         result_row.append(row[i] + row[i - 1])
         i += 2
       else:
@@ -177,4 +153,4 @@ class Base2048Env(gym.Env):
     if i == len(row):
       result_row.append(row[i - 1])
 
-    return result_row
+    return score, result_row
