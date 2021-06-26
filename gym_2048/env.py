@@ -69,15 +69,18 @@ class Base2048Env(gym.Env):
     new_max = np.amax(self.board)
 
     #to fix rest and remove previous score system
+    print(max_value)
+    print(new_max)
     if done:
         reward = -1
-    elif np.array_equal(self.board, old_board):
-        reward = -1
-    elif max_value < new_max:
-        max_value = new_max
-        reward = 1 
     else:
-        reward = 0
+        if np.array_equal(self.board, old_board):
+            reward = -1
+        elif max_value < new_max:
+            max_value = new_max
+            reward = 1 
+        else:
+            reward = 0
 
     return self.board, reward, done, {}
 
