@@ -95,7 +95,7 @@ class Base2048Env(gym.Env):
     """Sample tile 2 or 4."""
 
     choices = [2, 4]
-    probs = [0.9, 0.1]
+    probs = [1, 0]
 
     tiles = self.np_random.choice(choices,
                                   size=count,
