@@ -77,7 +77,6 @@ class Base2048Env(gym.Env):
 
     return True
 
-
   def reset(self):
     """Place 2 tiles on empty board."""
 
@@ -85,6 +84,10 @@ class Base2048Env(gym.Env):
     self._place_random_tiles(self.board, count=2)
 
     return self.board
+
+  def setBoard(self, newBoard):
+  	"""set new board as current board"""
+  	self.board = newBoard
 
   def render(self, mode='human'):
     if mode == 'human':
