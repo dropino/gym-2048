@@ -114,7 +114,7 @@ class Base2048Env(gym.Env):
 
     zero_pos = zero_locs[zero_indices]
     zero_pos = list(zip(*zero_pos))
-    return zero_pos
+    return tuple(zero_pos)
 
   def _place_random_tiles(self, board, count=1):
     if not board.all():
